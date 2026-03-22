@@ -1,5 +1,5 @@
 This is the source code repository of the
-[RobCoGen2 website](https://mfrigerio17.github.io/robcogen2/).
+[RobCoGen2 website](https://mfrigerio17.github.io/robcogen2-web/).
 
 The website is 100% HTML+CSS, no Javascript. The entire content including
 images (i.e. the `public/` folder) is less than 1MB of data.
