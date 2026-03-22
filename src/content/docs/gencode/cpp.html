@@ -1,0 +1,244 @@
+<ul>
+  <li>The generated C++ code is organized in classes within the namespace
+    <code>&lt;robot name&gt;::rcg2</code> (configurable)</li>
+  <li>All matrices are of types defined in the
+    <a class="crossref" href="bonus.html#iit-rbd"><code>iit-rbd</code></a> library,
+    which is distributed with RobCoGen.
+    Internally, the <a class="web" href="http://eigen.tuxfamily.org">Eigen</a> library is used.</li>
+</ul>
+
+<h1 id="compiling">Compiling</h1>
+
+<p>A CMake file is generated along with the source code:</p>
+
+<pre class="cmdline"><code>mkdir build
+cd build
+cmake &lt;path to gen code&gt;
+make
+sudo make install
+</code></pre>
+
+<p>The install target will copy the header files in
+<code>.../&lt;robot_name_lowercase&gt;/rcg2/...</code>
+so that they can be later included in other sources with</p>
+<pre><code class="cpp">#include &lt;robot_name_lowercase&gt;/rcg2/...</code></pre>
+
+<p>A shared library called <code>lib&lt;robot_name_lowercase&gt;rcg2.so</code> is
+  built and installed in a system folder.</p>
+
+<h2 id="requirements">Requirements</h2>
+
+<p>In order to build the generated C++ code, you will need</p>
+
+<ul>
+  <li>the <a class="web" href="http://eigen.tuxfamily.org">Eigen</a> library
+  <li>the <a class="crossref" href="bonus.html#iit-rbd"><code>iit-rbd</code></a>
+    library</li>
+</ul>
+
+<h1 id="using-the-code">Using the code</h1>
+
+<h2 id="kinematics">Kinematics</h2>
+
+<p>Coordinate transforms are public members of a container class. So, for instance</p>
+
+<pre><code class="cpp">#include &lt;fancy/rcg2/declarations.h&gt;
+#include &lt;fancy/rcg2/transforms.h&gt;
+#include &lt;fancy/rcg2/rbd_types.h&gt;
+
+int main()
+{
+    namespace robot = fancy::rcg2;
+
+    robot::Transforms xt;
+    robot::JointState q;
+    q.setZero();
+    xt.update(q);  // update all the transforms in the container
+
+    robot::Vector3 vh;
+
+    // Take a parent-link transform ..
+    //   .. use it as an Homogeneous coordinates transform ('XH')..
+    xt.m_link2_X_link1. link2_XH_link1() * vh;
+    xt.m_link2_X_link1. link1_XH_link2() * vh; // the opposite polarity
+
+    //   .. or as a spatial vector Motion transform ('XM')
+    robot::Velocity vm;
+    xt.m_link2_X_link1. link2_XM_link1() * vm;
+
+    // Also the individual transforms can be updated with the joint state:
+    xt.m_link4_X_link3(q);
+
+    return 0;
+}
+</code></pre>
+
+<p>This example demonstrates:</p>
+<ul>
+  <li>updating all the transforms with the current joint state, and
+    the use of <code>operator(const JointState&amp;)</code> to
+    update individual ones</li>
+
+  <li>the polymorphic nature of a single transform, that can act
+    on different coordinate vectors (e.g. homogenous coordinates,
+    spatial motion coordinates) and for both
+    <a class="crossref" href="algebra.html#polarity">polarities</a> (e.g.
+    transform fom link1 to link2 or viceversa)</li>
+</ul>
+
+As one may expect, the <code>update()</code> and the <code>operator()</code>
+actually compute the coefficients of the matrix according to the given joint
+state values. This procedure is optimized in that only the non-constant elements
+of the matrix are recomputed, and the trigonometric functions are computed only
+once for each update.</p>
+
+<h2 id="dynamics">Dynamics</h2>
+
+<p>Dynamics algorithms are wrapped inside dedicated classes with a simple interface.
+  So far, such classes are <code>ForwardDynamics</code>, <code>InverseDynamics</code>
+  and <code>JSIM</code> (the
+Joint-Space Inertia Matrix). Other classes include the <code>InertiaProperties</code>
+which is just a container of all the inertia properties of the links of the
+robot.</p>
+
+<p>The constructor of the classes wrapping a dynamics algorithm usually requires an
+instance of the inertia properties as well as an instance of the coordinate
+transforms container (see the previous section about
+  Kinematics). Here is an example, which refers again to the robot Fancy:</p>
+
+<pre><code class="cpp">#include &lt;fancy/rcg2/declarations.h&gt;
+#include &lt;fancy/rcg2/transforms.h&gt;
+#include &lt;fancy/rcg2/inertia_properties.h&gt;
+#include &lt;fancy/rcg2/inverse_dynamics.h&gt;
+
+int main()
+{
+    using namespace fancy::rcg2;
+
+    Transforms xt;
+    InertiaProperties ip;
+    JointState q, qd, qdd, tau;
+
+    InverseDynamics solver(ip, xt);
+    solver.id(q, qd, qdd, tau);
+    return 0;
+}
+</code></pre>
+
+
+<h2 id="parameteric-robots">Parametric robots</h2>
+
+<p>See <a class="crossref" href="rmodel.html#numerical-properties">this section</a>
+  about parametric models.</p>
+
+<p>The generated classes for the inertial properties and for the coordinate transforms,
+  will have a method called <code>updateParameters(..)</code> to pass in new values.</p>
+
+<p>
+  The transforms will <strong>not</strong> be refreshed right away,
+  but any following use of <code>operator(const JointState&amp;)</code>
+  (see above) will then use the new parameters. On the other hand,
+  <code>InertiaProperties</code> updates its data as soon as it receives
+  new parameters.
+</p>
+
+<p><strong>Warning</strong>: the <a href="rmodel.html#kindsl" class="crossref">KinDSL</a> robot model
+  format allows to specify the initial default value for the parameters. However,
+  such a value is optional. However, the constructor of <code>InertiaProperties</code>
+  relies on such initial values. Therefore, the user <strong>must</strong> modify the
+  generated <code>struct</code> for the parameters with appropriate initial values
+  (see the comments in the code), if these are not available in the model.</p>
+
+
+
+<h2 id="automatic-differentiation">Automatic Differentiation</h2>
+
+<p>The C++ code generated by RobCoGen is generic with respect to the scalar type,
+  by means of a simple, unique <code>typedef</code>. Alternatively, it is possible
+  to generate actual templated code parametric on the scalar type, in place of
+  regular code &mdash; <a href="usage.html" class="crossref">use</a> the <code>--template</code>
+  swich.</p>
+
+<p>In both cases, it means the code is suitable for
+  <a class="web" href="https://en.wikipedia.org/wiki/Automatic_differentiation">automatic differentiation</a>
+  tools based on operator overloading.</p>
+
+<details>
+  <summary>Example on changing the scalar</summary>
+  <p>In the case of non-templated code, changing the scalar type requires to edit
+    the generated <code>rbd_types.h</code> file. This is a sample diff file for
+  the code generated for the sample robot model:</p>
+
+<pre class="codehilite diff"><code>
+<span class="gh">diff --git a/sample/fancy/gen/cpp/rbd_types.h b/sample/fancy/gen/cpp/rbd_types.h</span><span class="w"></span>
+<span class="gh">index 72bb831..e1f2891 100644</span><span class="w"></span>
+<span class="gd">--- a/sample/fancy/gen/cpp/rbd_types.h</span><span class="w"></span>
+<span class="gi">+++ b/sample/fancy/gen/cpp/rbd_types.h</span><span class="w"></span>
+<span class="gu">@@ -4,11 +4,12 @@</span><span class="w"></span>
+<span class="w"> </span>#include &lt;iit/rbd/rbd.h&gt;<span class="w"></span>
+<span class="w"> </span>#include &lt;iit/rbd/scalar_traits.h&gt;<span class="w"></span>
+<span class="w"> </span>#include &lt;iit/rbd/InertiaMatrix.h&gt;<span class="w"></span>
+<span class="gi">+#include &lt;some other header with your type&gt;</span><span class="w"></span>
+<span class="w"> </span>
+<span class="w"> </span>namespace fancy {<span class="w"></span>
+<span class="w"> </span>namespace rcg2 {<span class="w"></span>
+<span class="w"> </span>
+<span class="gd">-typedef typename iit::rbd::DoubleTraits ScalarTraits;</span><span class="w"></span>
+<span class="gi">+typedef typename CustomTraitsYouHaveToDefine ScalarTraits;</span><span class="w"></span>
+<span class="w"> </span>typedef typename ScalarTraits::Scalar Scalar;<span class="w"></span>
+<span class="w"> </span>
+<span class="w"> </span>typedef iit::rbd::Core&lt;Scalar&gt; TypesGen;<span class="w"></span>
+</code></pre>
+</details>
+
+<details>
+  <summary>Non-literal types</summary>
+  In case you want to use a scalar type that is <em>not</em>
+  <a class="web" href="https://en.cppreference.com/w/cpp/language/constant_expression.html#Literal_type">literal</a>,
+  then you must <a href="usage.html" class="crossref">use</a> the <code>--no-constexpr</code>
+  switch when generating the code.
+</details>
+
+<h3 id="cppad">CppAD</h3>
+
+<p>Parametrizing the scalar type is unfortunately only necessary but not sufficient
+  to use an AD tool; some additional definitions (i.e. type traits) are required.
+  RobCoGen natively supports <a class="web" href="http://coin-or.github.io/CppAD/doc/cppad.htm">CppAD</a>
+  by providing the necessary specific type traits.
+  See <a class="web" href="https://github.com/mfrigerio17/iit_rbd/tree/master/iit/robcogen/scalar">here.</a>
+ <p>Of course, you must have CppAD installed in your system.</p>
+
+ <details>
+   <summary>Diff file</summary>
+<pre class="codehilite diff"><code>
+<span class="gh">diff --git a/sample/fancy/gen/cpp/rbd_types.h b/sample/fancy/gen/cpp/rbd_types.h</span><span class="w"></span>
+<span class="gh">index 72bb831..e1f2891 100644</span><span class="w"></span>
+<span class="gd">--- a/sample/fancy/gen/cpp/rbd_types.h</span><span class="w"></span>
+<span class="gi">+++ b/sample/fancy/gen/cpp/rbd_types.h</span><span class="w"></span>
+<span class="gu">@@ -4,11 +4,12 @@</span><span class="w"></span>
+<span class="w"> </span>#include &lt;iit/rbd/rbd.h&gt;<span class="w"></span>
+<span class="w"> </span>#include &lt;iit/rbd/scalar_traits.h&gt;<span class="w"></span>
+<span class="w"> </span>#include &lt;iit/rbd/InertiaMatrix.h&gt;<span class="w"></span>
+<span class="gi">+#include &lt;iit/robcogen/scalar/cppad.h&gt;</span><span class="w"></span>
+<span class="w"> </span>
+<span class="w"> </span>namespace fancy {<span class="w"></span>
+<span class="w"> </span>namespace rcg2 {<span class="w"></span>
+<span class="w"> </span>
+<span class="gd">-typedef typename iit::rbd::DoubleTraits ScalarTraits;</span><span class="w"></span>
+<span class="gi">+typedef typename iit::robcogen::CppADDoubleTraits ScalarTraits;</span><span class="w"></span>
+<span class="w"> </span>typedef typename ScalarTraits::Scalar Scalar;<span class="w"></span>
+<span class="w"> </span>
+<span class="w"> </span>typedef iit::rbd::Core&lt;Scalar&gt; TypesGen;<span class="w"></span>
+</code></pre>
+ </details>
+
+<h2>API docs</h2>
+
+<p>The generated code normally includes <a class="web" href="http://www.doxygen.nl">Doxygen</a>
+  comments.
+  Changes in the generated code due to new versions of RobCoGen might not be
+  reflected immediately in this pages, whereas Doxygen documentation is more
+  likely to be consistent with the code.
+</p>
+
+

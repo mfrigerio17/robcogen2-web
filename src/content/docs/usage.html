@@ -1,0 +1,72 @@
+<p>RobCoGen is a command line program. After <a href="download.html" class="crossref">installation</a>
+type</p>
+
+<pre class="cmdline"><code>rcg --help
+</code></pre>
+
+<p>to see the available options.</p>
+
+<p>One mandatory argument is the path of the <a href="rmodel.html" class="crossref">robot model</a>
+  description file, which can either be a URDF or a KinDSL file</p>
+
+<h1>Examples</h1>
+
+<p>Generate Octave code for the sample robot "Fancy", which is included
+  in the source archive:</p>
+
+<pre class="cmdline"><code>rcg --octave --output rcgen/octave sample/fancy/fancy.kindsl
+</code></pre>
+
+<p>Generate C++ code for iit's <a class="web" href="https://dls.iit.it/web/dynamic-legged-systems/hyq">
+    HyQ robot</a>; note that the floating base case must be explicitly mentioned:</p>
+
+<pre class="cmdline"><code>rcg --floating --cpp --output rcgen/cpp sample/hyq/hyq.kindsl
+</code></pre>
+
+
+<h1 id="testing">Testing</h1>
+
+<p>Please see <a class="crossref" href="features.html#testing">here</a> for an introduction.</p>
+
+<p>The following examples also refer to the sample robot model Fancy,
+  and use arbitrary paths. Please adapt them according to your needs.</p>
+
+<h2>Octave code only</h2>
+
+<pre class="cmdline"><code>rcg --octave --output /tmp/rcgen/octave sample/fancy/fancy.kindsl
+cd /tmp/rcgen/octave
+octave runtests.m &lt;spatial_v2 root&gt; &lt;robcogen root&gt;/testing/src
+</code></pre>
+
+<h2>Octave and C++</h2>
+<p>Generate all the code <em>and</em> the helper scripts:</p>
+
+<pre class="cmdline"><code>rcg --octave --output /tmp/rcgen/octave sample/fancy/fancy.kindsl
+rcg --cpp    --output /tmp/rcgen/cpp    sample/fancy/fancy.kindsl
+rcg --tests  --output /tmp/rcgen/       sample/fancy/fancy.kindsl
+</code></pre>
+
+<p>Then run the master script that was created (<code>testall.sh</code>)
+  with bash:</p>
+
+<pre class="cmdline"><code>bash /tmp/rcgen/testall.sh &lt;robcogen root&gt; &lt;spatial_v2 root&gt; /tmp/rcgen/cpp /tmp/rcgen/octave
+</code></pre>
+
+<details><summary>More details</summary>
+  <code>testall.sh</code> will attempt to
+  <ol>
+    <li>build the generated C++, which includes some binaries that conform
+      to testing requirements</li>
+    <li>execute the stand-alone consistency test for C++</li>
+    <li>invoke in turn the <code>testall.m</code> Octave script, which
+      attempts to execute
+      <ul>
+	<li>all the comparison test functions for the generated Octave code</li>
+	<li>all the comparison test functions for the generated C++ code</li>
+      </ul>
+    </li>
+  </ol>
+</details>
+
+
+

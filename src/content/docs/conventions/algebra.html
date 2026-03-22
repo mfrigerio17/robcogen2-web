@@ -1,0 +1,75 @@
+<h1 id="spatial-vectors">Spatial vectors</h1>
+<p>In RobCoGen, 6D coordinate vectors representing spatial-vectors (twists and
+  wrenches) always follow this convention:</p>
+<ul>
+  <li>the first three coordinates represent the angular part of the quantity (either
+    angular velocity or torque)</li>
+  <li>the last three coordinates represent the linear part (linear velocity or force)</li>
+</ul>
+<p>As far as C++ is concerned, the
+  <a href="bonus.html#iit-rbd" class="crossref"><code>iit::rbd</code> namespace</a>
+  has some elements to abstract the underlying convention, like a 6-value enum to
+  index symbolically the vectors.
+</p>
+
+<h1 id="reference-frames">Reference frames</h1>
+
+<p>
+  The coordinate frames of links and joints are not mentioned
+  explicitly in <a class="crossref" href="rmodel.html">robot-model</a> files.
+</p>
+<p>
+  In RobCoGen, the ID (name) of a reference frame defaults to the name of
+  the link or the joint it is attached to.
+</p>
+<p>
+  This policy is <a class="web" href="https://github.com/mfrigerio17/robot-model-tools/blob/2b4c4c2398db7bebade45b71b75ede1dc2596252/src/robmodel/frames.py#L50">implemented</a>
+  in a dedicated module of the
+  <a class="crossref" href="bonus.html#rmt">Robot Model Tools</a>
+  package.
+</p>
+
+
+
+<h1 id="coordinate-transformation-matrices">Coordinate transformation matrices</h1>
+
+<p>Coordinate transforms, in the generated code but also in documentation,
+  follow a naming convention in the form:</p>
+
+<p><code>A_X_B</code></p>
+
+<p>where <code>A</code> and <code>B</code> refer to some reference frame.
+  This notation immediately conveys the effect of the transform: when
+  right-multiplied by a column vector of coordinates of <code>B</code>,
+  it gives the coordinates of <code>A</code>, as in</p>
+
+<p><code>v_A = A_X_B * v_B</code></p>
+
+<p>For example, the transform that maps coordinates in the frame of a link
+  called <code>wrist</code> to coordinates of link <code>trunk</code>, will typically appear in the
+  source code with the identifier <code>trunk_X_wrist</code>.
+</p>
+
+<h4>Left and right frames</h4>
+
+<p>In the notation <code>A_X_B</code>, the frames <code>A</code> and
+  <code>B</code> are sometimes referred to as the <em>left</em> and
+  <em>right</em> frame, respectively, because of their relative position with
+  respect to <code>X</code>. The figure below illustrates the notation.
+</p>
+
+<figure>
+  <img src="img/left_right_frame.png" style="height:256px">
+</figure>
+
+<p>In the first equation <code>A</code> is the left frame while
+<code>B</code> is the right frame. In the second equation it is the other way round.</p>
+<p>Given a certain context, a pair right/left frame uniquely identifies the
+semantics of a coordinate transform.</p>
+
+<h4 id="polarity">Polarity</h4>
+
+<p>The two complementary transforms <code>A_X_B</code> and <code>B_X_A</code>
+  are said to have opposite <em>polarity</em>.</p>
+
+</div>

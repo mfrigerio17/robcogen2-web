@@ -1,0 +1,44 @@
+<ul>
+  <li>RobCoGen is a code generator, a program whose output is text files
+    (C++ and Octave source code)</li>
+
+  <li>RobCoGen is a command line tool written in Python and Lua</li>
+
+  <li>The generated code implements efficiently common kinematics and
+    dynamics algorithms for a specific articulated robot</li>
+
+  <li>The main input of RobCoGen is a text file describing the structure of an
+    articulated robot, such as a manipulator or a humanoid. The output is <em>robot
+      specific</em> code, optimized, suitable for both simulations and hard real time
+    control.</li>
+</ul>
+
+<div id="fig-overview">
+    <img src="img/overview.png" style="width:90%">
+</div>
+
+<p>RobCoGen <em>is not</em> a rigid body dynamics simulator. However, it generates a fast
+implementation of the forward dynamics algorithm for your robot, which is a
+fundamental component of a simulator.</p>
+
+<p>RobCoGen <em>is not</em> a controller. However, it generates code for various matrices
+(coordinate transforms, Jacobians, inertia matrix) which are commonly used in
+model based controllers.</p>
+
+<h1 id="motivation">Motivation</h1>
+<p>To simulate and control our robots we want efficient code, possibly in different
+programming languages. For hard real time control we also need predictable
+execution time. Rigid body dynamics algorithms are text book knowledge, but are
+not trivial to implement by hand; coordinate transforms are conceptually simple
+but confusing to deal with. RobCoGen was designed to address all these issues,
+and to relieve the roboticist from some manual coding which is hard, time
+consuming, error prone.</p>
+
+<p>Existing tools based on symbolic simplification have few possible drawbacks,
+including: not so easy to use, no support for multiple programming languages,
+only commercially available, generate hard-to-understand code. On the other
+hand, general purpose dynamics engines are less efficient when compared to
+a code generation approach. They are more flexible as they would work with a
+robot model that is created at runtime (i.e. a data structure), but doing so
+is rarely an actual requirement on a real robot deployment.
+</p>

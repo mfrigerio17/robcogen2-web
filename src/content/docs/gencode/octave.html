@@ -1,0 +1,71 @@
+<ul>
+  <li>The generated Octave code has no external dependencies</li>
+  <li>Robot data and solvers are wrapped in handle classes or pure functions</li>
+  <li>The source files are created in the namespace (a "plus folder") <code>rcg2</code>,
+    although this is configurable</li>
+</ul>
+
+<p>Basic API is best illustrated by an example. This code is taken from
+  an init function which is also generated, to help the user setting up the
+  workspace:</p>
+
+<pre><code class="octave">robot.mic = rcg2.ModelInertiaConstants();
+robot.mip = rcg2.ModelInertiaParameters();
+robot.mgc = rcg2.ModelGeometryConstants();
+robot.mgp = rcg2.ModelGeometryParameters();
+
+% Container of the inertial properties
+robot.ip  = rcg2.InertiaProperties(robot.mic, robot.mip);
+
+% Container of the spatial motion vectors coordinate transforms
+robot.xm  = rcg2.MotionTransforms(robot.mgc, robot.mgp);
+
+% Computation of composite inertias and the JSIM
+robot.jsim = rcg2.CompositeInertia(robot.ip, robot.xm);
+</code></pre>
+
+<p>This snippet runs the inverse dynamics solver (for a fixed base robot):</p>
+
+<pre><code class="octave">dof = 5;  % depends on your model
+q   = rand(dof,1);
+qd  = rand(dof,1);
+qdd = rand(dof,1);
+
+robot.xm.updateAll(q); % forward kinematics on the full tree
+tau = rcg2.inverseDynamics(robot.ip, robot.xm, qd, qdd);
+</code></pre>
+
+
+<h1 id="parameteric-robots">Parameteric robots</h1>
+
+<p>In case of a <a href="rmodel.html#numerical-properties" class="crossref">parametric robot model</a>,
+  the API does not change, and only the internals of the containers for the
+  inertial properties and the coordinate transforms are affected.</p>
+
+<p>The following refers to
+  <a class="web" href="https://github.com/mfrigerio17/robcogen2/tree/master/sample/fancy/gen/octave/%2Brcg2">the sample robot model</a>
+  "Fancy" included
+  in the <a href="download.html" class="crossref">source package</a> of RobCoGen, whose
+  first link has parametric mass:</p>
+
+<pre><code class="octave">robot = rcg2.init();
+display( robot.ip.link1.mass );
+
+params = rcg2.ModelInertiaParameters();
+params.m1 = 2;
+
+robot.ip.updateParameters(params);
+display( robot.ip.link1.mass );
+</code></pre>
+
+<p>Any such change in the inertial or geometrical properties of the robot
+  will be reflected in the solvers' output, because the container is either
+  passed as an argument, or because a handle to it is stored in the solver's
+  class.</p>
+
+<p><strong>Warning</strong>: Octave code does not implement any particular check
+  on varying inertia properties. That means, for example, that if the user
+  parametrizes only the mass of a link and not its tensor, changing the mass alone
+  effectively corresponds to changing the dimensions of the rigid body.</p>
+
+</div>
