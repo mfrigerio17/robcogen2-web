@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset=utf-8>
+<link rel="stylesheet" href="style.css">
+
+<body>
+<div id="home">
+  <a href="index.html" class="crossref"><img src="img/home.svg"></a>
+</div>
+
+  <heading id="breadcrumbs">
+      <div class="navbar tree">
+        <a href="intro.html" class="inactive crossref">Introduction</a>
+        <a href="docs.html" class="active crossref">Documentation</a>
+        <a href="download.html" class="inactive crossref">Get it</a>
+        <a href="about.html" class="inactive crossref">About</a>
+      </div>
+      <div class="navbar tree">
+          <a href="usage.html" class="inactive crossref">Usage</a>
+          <a href="gencode.html" class="inactive crossref">Generated code</a>
+          <a href="conventions.html" class="active crossref">Conventions</a>
+      </div>
+      <div class="navbar leaf">
+          <a href="rmodel.html" class="active crossref">Robot model</a>
+          <a href="algebra.html" class="inactive crossref">Algebra</a>
+      </div>
+
+
+  </heading>
+
+
+<div class="content">
+<ul>
+  <li>The kinematics/dynamics model of an articulated robot is the primary input of RobCoGen</li>
+
+  <li>This page documents the meta-model assumed by RobCoGen, and the procedure
+    to make a conforming model with the <strong>Kinematics-DSL</strong> (or "KinDSL",
+    where DSL stands for Domain Specific Language). The KinDSL is a text
+    format with a simple syntax tailored for the job.</li>
+
+  <li>RobCoGen also accepts robot models in the URDF format.
+    The URDF essentially conforms to the same meta-model</li>
+</ul>
+
+<h1 id="kindsl">KinDSL overview</h1>
+
+<p>The logical structure of a file ("document", or "model") is the following:</p>
+
+<pre><code class="kindsl">Robot &lt;name&gt;
+
+  &lt;link 0 spec&gt; // the robot base
+  &lt;link 1 spec&gt;
+  //...
+  &lt;link n spec&gt;
+
+  &lt;joint 1 spec&gt;
+  //...
+  &lt;joint n spec&gt;
+</code></pre>
+
+<p>Any <code>link</code> block contains an id, the inertia properties, and a possibly empty
+list of children links. The geometrical constants of the robot are encoded in
+the <code>joint</code> parameters, which are extensively explained below.</p>
+
+<p>
+  The format allows to model any <em>kinematic tree</em>, a
+  mechanism where each rigid body has one and only one parent
+  (except the base), and may have zero or multiple children.
+</p>
+
+<h2 id="rmodel_kindsl_example">Example</h2>
+<p>
+  Here is the
+  <a class="web" href="https://github.com/mfrigerio17/robcogen2/blob/master/sample/fancy/fancy.kindsl">model</a>
+  for my "Fancy" robot, the example included in the
+  <a href="download.html" class="crossref">distribution</a> of RobCoGen:
+</p>
+
+<object id="fancy_model_text" type="text/html" data="fancy.kindsl.html" style="width:90%;height:20em"></object>
+
+<figure id="fig:fancy_sim">
+  <img src="img/fancy.png" style="height:256px">
+  <figcaption>
+    An illustration of the "Fancy" robot, taken from a simulation (SL) using
+    RobCoGen-erated code. Spheres represent revolute joints, cubes prismatic ones
+  </figcaption>
+</figure>
+
+<h1 id="geometry">Geometry</h1>
+
+<p>This section walks you through the procedure required to model an articulated
+mechanism with the Kinematics-DSL. It explains how to place the <strong>coordinate
+frames</strong> and how to measure lengths and angles. The convention about the
+placement of reference frames (or "coordinate frames") is definitely the aspect
+that can be most confusing, and that is typically not documented enough. I tried
+to avoid such a mistake.</p>
+
+<p>Terminology first:</p>
+<ul>
+  <li>
+    <p>A <em>kinematic-pair</em> is a pair of links connected by a joint</p>
+  </li>
+  <li>
+    <p>The links of a pair, in relation with the joint, are called
+      <em>predecessor</em> and <em>successor</em>.</p>
+  </li>
+  <li>
+    <p>The links of a pair, in relation with each other, are called <em>parent</em> and
+      <em>child</em>.</p>
+  </li>
+  <li>
+    <p>We say that a parent/predecessor/joint <em>supports</em> the child/joint/successor;
+      the opposite relation is <em>supported by</em>.</p>
+  </li>
+</ul>
+
+<h2 id="basic-modeling">Basic modeling</h2>
+
+<p>The following applies to kinematic trees (no loops), with one-dof joints only.</p>
+<ol>
+  <li><strong>Ordering.</strong> Choose the topological ordering for your
+   robot: which link is the base, which are the parents/children, etc.
+   This choice induces a total ordering with respect to the relation
+    <em>supports/supported by</em></li>
+  <li><strong>Zero configuration.</strong>
+    Choose the configuration of the robot you wish to identify with the zero
+    joint-status vector; consider the robot assembled, <em>but neglect joint limits</em>.
+    That is, the zero configuration must comply with the holonomic constraints of
+    the real joints, but it <em>need not</em> respect the range of motion; it might very
+    well be unreachable by the actual
+    robot.<sup class="fn-ref" id="fnref:jlims"><a class="crossref" href="#fn:jlims">1</a></sup>
+    Note that no reference frame was mentioned yet.</li>
+  <li><strong>Link-frames.</strong>
+    Consider each individual link (in isolation), and attach a Cartesian frame to
+    it. The <em>Z axis must lie along the axis of the supporting joint</em> (e.g. the Z
+    axis of a forearm is the elbow axis), but you are otherwise free to choose the
+    pose.<sup class="fn-ref" id="fnref:lf-pose"><a class="crossref" href="#fn:lf-pose">2</a></sup>
+    The link-frame of the base link of the robot can be placed anywhere.</li>
+  <details>
+    <summary>More</summary>
+    The link-frame is the reference used for any quantity related to the link itself
+    (e.g. the center of mass, the pose of other attached frames, the location of
+    the joint axis, etc.).
+  </details>
+  <li><strong>Joint-frames.</strong>
+    Consider the robot assembled, freezed in the zero configuration. For each joint
+    of the robot, attach a new frame onto its predecessor, in the <em>same</em> pose of the
+    frame of its successor (i.e. the two frames coincide). This is the joint-frame.</li>
+  <li><strong>Geometrical properties.</strong>
+    The pose of any joint-frame relative to the predecessor-frame is
+    <em>a geometrical constant</em> of the robot. This pose is represented in the
+    <code>joint</code> sections of a Kinematics-DSL model.</li>
+</ol>
+
+<h3 id="example_1">Example</h3>
+
+<p>
+  Let's consider a simple kinematic pair, as the extension to a general tree would
+  simply require to reiterate the same steps.
+  This screenshot shows the links and the ideal joint axes (in red):
+</p>
+<figure class="sshots">
+  <img class="links" src="img/links/kpair.gif"/>
+</figure>
+
+<p>The corresponding section of a model would look like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ...</span>
+
+<span class="k">link</span> <span class="n">Blue</span> {
+    <span class="k">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">i</span><span class="o">&gt;</span>
+    <span class="k">inertia_properties</span> {
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+    <span class="k">children</span> {
+        <span class="n">Green</span> <span class="k">via</span> <span class="n">TheJoint</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">link</span> <span class="n">Green</span> {
+    <span class="k">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="o">&gt;</span>
+    <span class="k">inertia_properties</span> {
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+    <span class="k">children</span> { <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">r_joint</span> <span class="n">TheJoint</span> { <span class="c1">// &#39;r_&#39; stands for revolute</span>
+    <span class="k">ref_frame</span> {
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<ol>
+
+  <li><strong>Ordering.</strong> We choose the blue link to be the parent.
+    Therefore it is the predecessor of the joint between the two links.</li>
+
+  <li><strong>Zero configuration.</strong>
+    The zero configuration is an entirely free choice,
+      pick an intuitive one in the context of your application.
+      Here are two examples:
+    <figure class="sshots" style="grid-template-columns:auto auto">
+      <img src="img/links/q0-1.gif"/>
+      <img src="img/links/q0-2.gif"/>
+    </figure>
+  </li>
+
+  <li><strong>Link-frames.</strong> The figures below illustrate a couple of
+    examples: the Z axis always lies on
+    the joint axis, but the frame is otherwise free to "move"
+    <figure class="sshots" style="grid-template-columns:auto auto">
+      <img src="img/links/frames-1.gif"/>
+      <img src="img/links/frames-2.gif"/>
+    </figure>
+
+    <p>The Z axis could also be pointing in the opposite versus; the right hand
+      rule on the Z axis determines the direction of rotation which corresponds to
+      an increase/decrease of the joint status (choose the versus of Z to fix
+      the preferred convention).</p>
+    <p>Also, note that all combinations between the previous
+      and these screenshots are possible, i.e., the choice of the zero configuration
+      is <em>independent</em> of the choice of link frames.</p>
+  </li>
+  <li>
+    <strong>Joint frames.</strong>
+      At this point, the zero configuration <em>and</em>
+      the link frames have been chosen. The joint frame coincides with the successor frame,
+      when in the zero configuration:
+    <figure class="sshots">
+      <img src="img/links/joint-frame-1.gif"/>
+      <img src="img/links/joint-frame-2.gif"/>
+      <figcaption>
+	The <span style="color:red">joint frame</span> is attached to its
+	predecessor, and it is in the same pose as the successor frame
+	when the joint state is 0.
+      </figcaption>
+    </figure>
+
+    There is no need for the origin to coincide with a material point of the link,
+    similarly as for the link frame.
+  </li>
+
+  <li><strong>Geometrical properties.</strong>
+    The relative pose of the red frame with respect
+    to the blue frame is a constant that must be included in the robot model. The
+      previous example would correspond to something like this:
+    <div class="codehilite">
+      <pre><code><span class="k">r_joint</span> <span class="n">TheJoint</span> {
+    <span class="k">ref_frame</span> {
+        <span class="k">translation</span> <span class="o">=</span> <span class="p">(...</span> <span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">...)</span>  <span class="c1">// some translation along X and Z</span>
+        <span class="k">rotation</span>    <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="p">...,</span> <span class="mf">0.0</span><span class="p">)</span>   <span class="c1">// rotation Y</span>
+    }
+}
+</code></pre>
+    </div>
+
+    <p>Where the dots represent a non-zero value. The complete specification of the
+      format for the joint frame is in the next section.</p>
+  </li>
+</ol>
+
+<h3 id="joint-frame-format">Pose of the joint frame</h3>
+
+  <p>The <code>ref_frame</code> block within a <code>joint</code> block
+    defines the relative pose of the
+    joint frame with respect to the predecessor frame (which is a link frame). The
+    pose is represented with a translation vector and with three Euler angles,
+    representing three <em>successive, intrinsic</em> rotations about the X, Y and Z axis.
+    The rotations are applied <em>after</em> the translation.
+    Distances are in meters, angles in radians.</p>
+  <details>
+    <summary>Intrinsic rotations</summary>
+      The rotation parameters in <code>rotation = (..)</code> are interpreted as successive
+      rotations about the X, Y and Z axis of the <em>rotating frame</em>. The first number
+      <code>rx</code> is the amount of rotation about X, the second is the rotation about the Y
+      axis of the frame rotated by <code>rx</code>, the third is the rotation about the Z
+      axis of the frame rotated by the previous two rotations. Of course any of these
+      numbers can be zero. Also, they are interpreted according to the right hand
+      rule.
+  </details>
+  <p>For instance, the frame of the second joint of Fancy
+    (see <a href="#fancy_model_text">above</a>) is
+    modeled with this text:</p>
+  <div class="codehilite">
+    <pre><span></span><code><span class="k">p_joint</span> <span class="n">jB</span> {
+    <span class="k">ref_frame</span> {
+        <span class="k">translation</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">rotation</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">PI</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    }
+}
+</code></pre></div>
+
+
+<p>And the frames can be visualized like this:</p>
+<figure>
+  <img src="img/fancy-jb-frame.png"/>
+</figure>
+
+<h3 id="discussion">Discussion</h3>
+
+  <p>This is an optional section, with more information about the reference frames
+    of the robot model.</p>
+  <details>
+    <p><summary>Remarks</summary></p>
+    <ol>
+      <li>
+	<p>Any link-frame is fixed onto the link, it moves with it, it does not move
+	  relative to it.</p>
+      </li>
+      <li>
+	<p>Any joint-frame is fixed onto the predecessor link (which supports the
+	  joint), it moves with it, it does not move relative to it.</p>
+      </li>
+      <li>
+	<p>Any joint-frame is <em>fully identified</em> by the successor-frame and the choice
+	  of the zero configuration of the mechanism.</p>
+      </li>
+      <li>
+	<p>The Z axis of any joint-frame is the joint axis.</p>
+      </li>
+      <li>
+	<p>Motion of any joint is relative motion between the predecessor and the
+	  successor. The relative pose between the joint-frame and the successor-frame
+	  (the red and the green frame, in the examples above) is represented by what is
+	  commonly referred to as the <em>joint transform</em>.</p>
+      </li>
+      <li>
+	<p>The pose of the base-link-frame is arbitrary. It never appears explicitly in
+	  an individual robot model (there would not be any reference to express it,
+	  anyway!)</p>
+      </li>
+    </ol>
+  </details>
+  <details>
+    <p><summary>Interplay</summary></p>
+    <p>After reading the points above a few times and <strong>trying</strong> the procedure, one
+      eventually realizes the interplay between:</p>
+    <ul>
+      <li>the choice of the zero configuration</li>
+      <li>one degree of freedom in the choice of link-frames</li>
+      <li>the joint-frame parameters in the model</li>
+    </ul>
+    <p>I presented the first two points as arbitrary and the third one as a
+      consequence. Of course one is free to revise a choice in order to influence
+      another. For example, given a fixed zero configuration, one might want to change
+      the pose of a link-frame to minimize the number of non-zero values encoding
+      the pose of the corresponing joint frame (in the example: move the green
+      frame relative to the green link, to influence the pose of the red frame).</p>
+    <p>The degree of freedom in the choice of the link-frame which interplays with the
+      zero configuration differs between prismatic and revolute joints:</p>
+    <ul>
+      <li>for a prismatic joint it is the position of the origin (translation along the
+	Z axis)</li>
+      <li>for a revolute joint it is the orientation of the x/y axes (rotation about the
+	Z axis)</li>
+    </ul>
+    <p>For example, imagine you followed the entire procedure for the case illustrated
+      above. Now imagine you wish to change the pose of the green frame by rotating it
+      about Z (e.g. because it is more convenient to express the rotational inertias).
+      In this case, keeping the same numbers for the joint frame pose would effectively
+      imply a change in the zero configuration.</p>
+    <p>On the other hand, imagine changing the numbers in the model so as to translate
+      the origin of the joint-frame (in red) along Z. The change has no effect on the
+      zero configuration, but it implies changing the pose of the green frame
+      (relative to the green link - the link itself cannot "translate", because it is
+      assembled and constrained by the joint). In this case the center of mass and the
+      inertia moments of the green link must be changed in the model, to reflect the
+      different pose of the frame relative to the actual body.</p>
+    <p>Finally, changing the joint pose coefficients so as to rotate the joint frame
+      about Z, implies either changing the zero configuration, or, again, changing the
+      pose of the successor-frame (green).</p>
+  </details>
+  <details>
+    <p><summary>Why it is sensible</summary></p>
+    <p>This convention is basically the minimum required to execute numerical
+      kinematics and dynamics algorithms.</p>
+    <p>If you feel it is overly restrictive or redundant, consider the following
+      arguments:</p>
+    <ul>
+      <li>
+	<p>The Kinematics-DSL does not prevent to attach additional frames on
+	  each link (each defined with respect to the default link-frame), for
+	  whatever use.</p>
+      </li>
+      <li>
+	<p>If one prefers a model without joint-frames, one would anyway need to tell
+	  explicitly where the joint axis is, in the body of the predecessor. Locating a
+	  line in space requires 4 parameters.</p>
+      </li>
+      <li>
+	<p>The convention requires the full pose of the joint frame, which has 6
+	  degrees of freedom (not 4), but the 2 "redundant" degrees enable to choose the
+	  origin and the zero-configuration, independently. DH parameters do not allow
+	  that, in general (DH parameters were good in the 70s...)</p>
+      </li>
+      <li>
+	<p>If one wants the default link-frame to be somewhere else than the joint axis,
+	  then the joint axis location must be given also with respect to the successor
+	  (and not just the predecessor). Furthermore, the kinematic solver working on
+	  such a model would end up working with the same frames we described <em>anyway</em>.</p>
+      </li>
+    </ul>
+  </details>
+  <details>
+    <p><summary>In short</summary>
+      The convention for the attachment of frames can be specified succinctly as in
+      the following:</p>
+    <ul>
+      <li>
+	<p>Link frames must be placed so that the z axis lies on the axis of the joint
+	  supporting the link.</p>
+      </li>
+      <li>
+	<p>Every joint has its own frame attached to the <em>predecessor</em>. This frame
+	  coincides with the frame of the successor <em>when the joint is at the zero
+	    configuration</em>.</p>
+      </li>
+      <li>
+	<p>For every link, the relative pose between the supported-joint-frame and its
+	  own frame is a constant that must be represented in the robot model.</p>
+      </li>
+    </ul>
+    <p>It is my experience that the simple enumeration of these attachment constraints,
+      although complete, is not very effective to <em>understand what to do</em> when
+      modeling the kinematics of a robot.</p>
+  </details>
+
+  <h2 id="optional-frames">Optional frames</h2>
+
+  <p>More reference frames can be optionally added to any link of the model. Any
+frame must be defined with respect to the default frame of the link it is
+attached to. The format to specify the relative pose is the same as for the
+joint frames. The keyword for the subsection is <code>frames</code>. For example:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">link</span> <span class="n">link5</span> {
+    <span class="c1">// ...</span>
+    <span class="k">inertia_properties</span> { <span class="cm">/*...*/</span> }
+    <span class="k">children</span> { <span class="cm">/* ... */</span> }
+
+    <span class="k">frames</span> {
+        <span class="n">end_effector</span> { <span class="c1">// a custom name</span>
+            <span class="k">translation</span> <span class="o">=</span> <span class="p">(</span> <span class="cm">/* ... */</span> <span class="p">)</span>
+            <span class="k">rotation</span>    <span class="o">=</span> <span class="p">(</span> <span class="cm">/* ... */</span> <span class="p">)</span>
+        }
+    }
+}
+</code></pre></div>
+
+
+<h1 id="inertia">Inertia</h1>
+<p>Any <code>link</code> block must specify the inertia properties of the rigid body: total
+mass (Kilograms), position of the center of mass (coordinates in meters),
+moments of inertia (Kilograms * meter squared). All the properties must be
+expressed in the <strong>link-frame</strong>.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">link</span> <span class="n">link1</span> {
+    <span class="c1">// ...</span>
+    <span class="k">inertia_properties</span> {
+        <span class="k">mass</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">CoM</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">.0</span><span class="p">,</span> <span class="mf">.0</span><span class="p">)</span>
+        <span class="k">Ix</span><span class="o">=</span><span class="mf">0.0025</span>  <span class="k">Iy</span><span class="o">=</span><span class="mf">0.33458</span>  <span class="k">Iz</span><span class="o">=</span><span class="mf">0.33458</span>  <span class="k">Ixy</span><span class="o">=</span><span class="mf">0.0</span>  <span class="k">Ixz</span><span class="o">=</span><span class="mf">0.0</span>  <span class="k">Iyz</span><span class="o">=</span><span class="mf">0.0</span>
+    }
+    <span class="c1">// ...</span>
+}
+</code></pre></div>
+
+
+<p>The example above is a model of a hollow, infinitely thin cylinder of unit length
+and unit mass, radius equal to 0.05. The link-frame has its origin in the center
+of one of the bases of the cylinder, with the x axis aligned with the height
+of the cylinder.</p>
+<details>
+  <summary>Definitions</summary>
+  Here are the definitions of all the six moments of inertia (discrete case):
+  <div style="display:grid;place-items:center">
+    <img src="img/moments_inertia.png" style="width:40%">
+  </div>
+
+  Where <math>m<sub>i</sub></math> is the mass of the <math>i-th</math> point of the body,
+  while <math>x<sub>i</sub></math>, <math>y<sub>i</sub></math>, <math>z<sub>i</sub></math> are its coordinates.
+  The 3 by 3 inertia tensor is defined as follows:
+
+  <div style="display:grid;place-items:center;margin-top:5px;margin-bottom:5px">
+    <img src="img/itensor.png" style="width:50%">
+  </div>
+
+  The robot model document requires <math>I<sub>x</sub></math>, <math>I<sub>y</sub></math>,
+  <math>I<sub>z</sub></math>, <math>I<sub>xy</sub></math>, <math>I<sub>xz</sub></math>,
+  <math>I<sub>yz</sub></math>, in any order, <strong>not</strong> the elements of the tensor (note the sign
+  differences). Thus, if you happen to have the inertia tensor of the links (e.g.
+  from the documentation of the robot), then you will have to switch the signs of
+  the off-diagonal elements before filling in the robot model.
+</details>
+
+<details><summary>Link frame coordinates</summary>
+As mentioned at the beginning, the position of the center of mass and all the
+moments of inertia must be expressed with coordinates of the default link frame
+(see above). The origin of this frame is not, in general, at the center of mass.
+</details>
+
+<h1 id="numerical-properties">Numerical properties</h1>
+<p>
+  RobCoGen and the KinDSL format distinguish three classes of
+  numerical properties in a robot model: <strong>variables, parameters and constants</strong>.
+  Conceptually, the distinction is based on the average changing
+  frequency characteristic of each class: variables change in general
+  <em>continuously</em>, parameters <em>may</em> change, with a
+  lower frequency, constants do not
+  change.<sup class="fn-ref" id="fnref:vpc"><a class="crossref" href="#fn:vpc">3</a></sup>
+</p>
+<p>In any robot model:</p>
+<ul>
+  <li>the variables are all and only the joint status variables; the variables are
+    <em>implicit</em>, they do <em>not</em> appear in the robot model</li>
+  <li>any numerical property of a robot model can be represented with a parameter
+    or a constant; this is a <em>modeling choice</em> of the user</li>
+  <li>any symbolic identifier (such as <code>mass_link1</code>) appearing where a numerical
+    property is expected, is considered a parameter. Square brackets can be optionally
+    used to set the default value, as in <code>mass_link1[1]</code></li>
+  <li>all float literals (e.g. <code>1.5</code>) and expressions involving PI (e.g. <code>PI/2.0</code>)
+    are considered constants</li>
+  <li><em>explicitly named constants</em> may also be used in a model,
+    with the syntax <code>&lt;myconstant=value&gt;</code>, where the angle
+    brackets are required literally; replace <code>myconstant</code> with a
+    valid identifier, and <code>value</code> with a float literal.</li>
+</ul>
+
+<p>For example:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// [..]</span>
+
+<span class="k">p_joint</span> <span class="n">jB</span> {
+    <span class="k">ref_frame</span> {
+        <span class="k">translation</span> <span class="o">=</span> <span class="p">(</span><span class="mf">&lt;mylength=1.0&gt;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>      <span class="c1">// constant</span>
+        <span class="k">rotation</span>    <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">PI</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1">// constant</span>
+    }
+}
+<span class="k">r_joint</span> <span class="n">jC</span> {
+    <span class="k">ref_frame</span> {
+        <span class="k">translation</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">jC_tz</span><span class="p">)</span>  <span class="c1">// parameter</span>
+        <span class="k">rotation</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    }
+}
+
+<span class="c1">// [..]</span>
+</code></pre></div>
+
+
+<h2 id="parametric-models">Parametric models</h2>
+<p>If any parameter is included in a robot model, the model is said to be
+<em>parametric</em>. In this case, the model effectively represent a <em>class</em> of
+mechanisms, defined by topological equivalence.</p>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:jlims">
+      <p>Which is a clue that joint limits do not really belong to the same level
+	of abstraction of the joint constraint. Another clue: basic dynamics solvers do
+	not need joint limits, although they obviously need the joint
+	constraint.&#160;<a class="fn-backref" href="#fnref:jlims" title="Jump back to footnote origin">&#8617;</a></p>
+    </li>
+    <li id="fn:lf-pose">
+      <p>Unless otherwise noted, the "pose" of a link-frame really means the pose
+	relative to the physical body of the link. Note how this information is purely
+	symbolic, it cannot be quantified nor it needs to. The frame is "there", fixed
+	somewhere specific on the
+	link.&#160;<a class="fn-backref" href="#fnref:lf-pose" title="Jump back to footnote origin">&#8617;</a></p>
+    </li>
+    <li id="fn:vpc">
+	I believe this criteria to be common in engineering and computer
+	science.&#160;<a class="fn-backref" href="#fnref:vpc" title="Jump back to footnote origin">&#8617;</a>
+    </li>
+  </ol>
+
+</div>
+
+
+</div>
+
+<footer>RobCoGen2 website &mdash; &copy; 2026 Marco Frigerio &mdash; last updated on March 2026</footer>
+
+</body>
+</html>

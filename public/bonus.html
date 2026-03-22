@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset=utf-8>
+<link rel="stylesheet" href="style.css">
+
+<body>
+<div id="home">
+  <a href="index.html" class="crossref"><img src="img/home.svg"></a>
+</div>
+
+  <heading id="breadcrumbs">
+      <div class="navbar tree">
+        <a href="intro.html" class="inactive crossref">Introduction</a>
+        <a href="docs.html" class="inactive crossref">Documentation</a>
+        <a href="download.html" class="inactive crossref">Get it</a>
+        <a href="about.html" class="active crossref">About</a>
+      </div>
+      <div class="navbar leaf">
+          <a href="authors.html" class="inactive crossref">Authors</a>
+          <a href="publications.html" class="inactive crossref">Publications</a>
+          <a href="bonus.html" class="active crossref">Bonus!</a>
+      </div>
+
+  </heading>
+
+
+<div class="content">
+<p>This page briefly describes additional projects related to RobCoGen,
+  and more related resources.</p>
+
+<h1 id="companion-projects">Companion projects</h1>
+
+<p>Some others projects of mine, which are dependencies of RobCoGen.</p>
+
+
+<h2 id="rmt">Robot model tools</h2>
+
+<div class="homepagelink">
+<a class="web" href="https://github.com/mfrigerio17/robot-model-tools"><img src="img/home.svg" ></a>
+</div>
+
+<p>
+  This is a Python package and command line tool to work with robot
+  model formats like <a class="crossref" href="rmodel#kindsl">KinDSL</a>
+  and <a class="web" href="https://wiki.ros.org/urdf">URDF</a>.
+</p>
+<p>
+  Its initial ambition was to provide separate modules for separate
+  aspects of robot modeling, such as connectivity, numbering, geometry,
+  etc. In parallel, to provide a practical tool to convert between
+  formats conforming (more or less..) to the same metamodel implemented
+  by its modules.
+</p>
+<p>
+  RobCoGen uses the "Robot model tools" package to load and parse
+  its input. It is in this project that I mantain the grammar
+  of the <a class="crossref" href="rmodel#kindsl">KinDSL</a> format.
+</p>
+
+
+<h2 id="ctgen">Coordinate transforms code generator</h2>
+<div class="homepagelink">
+  <a class="web" href="https://github.com/mfrigerio17/ctgen"><img src="img/home.svg" ></a>
+</div>
+<p>
+  A Python package and command line tool that does code generation
+  of coordinate transform matrices, given a human readable model of
+  a set of relative poses.
+</p>
+<p>
+  RobCoGen depends on the packages of "CtGen" to generate code for
+  the robot transforms. Robot kinematics is a special case of the
+  "geometrical" problems CtGen is for.
+</p>
+
+
+
+<h2 id="kgprim">Geometric primitives</h2>
+
+<div class="homepagelink">
+  <a class="web" href="https://github.com/mfrigerio17/kgprim"><img src="img/home.svg" ></a>
+</div>
+
+<p>
+  "kgprim" is a set of Python packages with data types to represent
+  entities like Cartesian frames and rigid bodies. It is a dependency
+  of all the previous projects including RobCoGen.
+</p>
+<p>
+  Most of its API is dedicated to modeling poses, coordinate transforms,
+  matrix rapresentations of the transforms; it strives for unambiguos semantics
+  and strict separation of orthogonal concerns.
+</p>
+
+
+
+
+
+<h2 id="tplengine">Template engine</h2>
+
+<div class="homepagelink">
+<a class="web" href="https://github.com/mfrigerio17/lua-template-engine"><img src="img/home.svg" ></a>
+</div>
+
+<p>
+  A general purpose Lua module to parse and evaluate textual templates.
+  It is very powerful thanks to Lua's flexibility and performance.
+  I use it extensively for my projects involving code generation.
+</p>
+
+
+<h1>Post-dependencies</h1>
+
+<p>Libraries to build/test the generated code (<strong>not</strong> runtime dependencies)</p>
+
+<h2 id="iit-rbd">The iit-rbd library</h2>
+
+<div class="homepagelink">
+  <a class="web" href="https://github.com/mfrigerio17/iit_rbd"><img src="img/home.svg"></a>
+</div>
+
+<p>A header-only C++ library with common types and functions
+  required to compile the generated C++ code.</p>
+
+<p>
+  Included in RobCoGen as a
+  <a class="web" href="https://github.com/mfrigerio17/robcogen2/blob/master/.gitmodules">submodule</a>,
+  for conveniency and fine-grained dependency management.
+</p>
+<p>
+  Please install the <code>iit_rbd</code> headers in your system include path.
+  The library includes a trivial <code>install.sh</code> script, for Linux distributions.
+</p>
+
+
+<h2 id="h:spatial_v2">Spatial V2</h2>
+
+<div class="homepagelink">
+  <a class="web" href="https://royfeatherstone.org/spatial/v2/"><img src="img/home.svg"></a>
+</div>
+
+<p>Roy Featherstone's Octave implementation of most of the rigid body dynamics
+  algorithms described in his book.</p>
+
+<p>This is the library I use to test RobCoGen-erated code, both Octave and C++,
+  by means of numerical comparisons.</p>
+
+
+<h1>Additional resources</h1>
+
+<h2 id="docker-container">Docker</h2>
+
+<p>
+  <a class="crossref" href="download.html#install">Installing</a> RobCoGen is pretty
+  simple, and Python's virtual environment already allows you not to affect your
+  system's packages.
+</p>
+<p>
+  However, if for any reason you prefer to use containers, RobCoGen's repo includes a sample
+  <a class="web" href="https://github.com/mfrigerio17/robcogen2/blob/master/etc/Dockerfile"><code>Dockerfile</code></a>
+  that builds a compact container with the dependencies.
+</p>
+
+<p>From the root of the RobCoGen's repo, you can build it e.g. with:</p>
+<pre class="cmdline"><code>docker build --tag robcogen etc/</code></pre>
+
+<p>Launch the container with:</p>
+<pre class="cmdline"><code>docker run -it robcogen sh</code></pre>
+
+<p>Then install RobCoGen using <code>pip</code>.</p>
+
+<h2 id="kingen">KinGen</h2>
+
+<div class="homepagelink">
+  <a class="web" href="https://github.com/esrocos/kin-gen"><img src="img/home.svg" ></a>
+</div>
+
+<p>
+  "KinGen" is another robotics code generator that I created with some great colleagues
+  from KU Leuven.<sup class="fn-ref" id="fnref:kuleuven"><a class="crossref" href="#fn:kuleuven">1</a></sup>
+</p>
+<p>
+  Its application scope is similar to RobCoGen: fast real-time performance on real
+  hardware, with strong reliability guarantees; hence robot-specific code generation.
+  However, its approach is potentially more powerful than RobCoGen, as the tool
+  gives the flexibility of choosing the generated API by means of high-level,
+  descriptive models.
+</p>
+<p>
+  With the greater ambition came also greater complexity. KinGen (so far)
+  supports "only" kinematics &mdash; position, velocity and Jacobian solvers for
+  arbitrary parts of the robot (and some more basic support for inverse
+  kinematics).
+</p>
+
+
+<h2 id="urdf2kindsl">URDF2KinDSL</h2>
+
+<div class="homepagelink">
+  <a class="web" href="https://github.com/mfrigerio17/urdf2kindsl"><img src="img/home.svg" ></a>
+</div>
+
+<p>
+  URDF2KinDSL is a Python command line utility to convert
+  <a class="web" href="https://wiki.ros.org/urdf">URDF</a> robot models
+  to the <a class="crossref" href="rmodel.html#kindsl">KinDSL</a> format.
+  It dates back to the <a class="web" href="https://robcogenteam.bitbucket.io">original RobCoGen</a>,
+  when URDF files could not be used directly, and you probably do not need it now.
+</p>
+<p>
+  However, it is highly specialized for the job and tailored to the small
+  metamodel differences between the two formats, which makes it more
+  capable, in general, than the <a class="crossref" href="#rmt">Robot Model Tools</a>.
+  For example, it has "advanced" features such as collapsing the dummy links
+  and joints often found in URDFs, while correctly composing the inertia of
+  the collapsed links.
+</p>
+
+
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:kuleuven">
+      Enea Scioni, Pawel Pazderski and Herman Bruyninckx, from the robotics group
+      at the mechanical engineering department of KU Leuven University. See this
+      <a class="web paperlink" href="https://ieeexplore.ieee.org/document/8675586">paper</a>.
+      <a class="fn-backref" href="#fnref:kuleuven" title="Jump back to the footnote origin">&#8617;</a>
+    </li>
+  </ol>
+</div>
+
+</div>
+
+<footer>RobCoGen2 website &mdash; &copy; 2026 Marco Frigerio &mdash; last updated on March 2026</footer>
+
+</body>
+</html>

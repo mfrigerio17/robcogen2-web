@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <radialGradient id="a" cx="182.98" cy="395.05" r="148.95" gradientTransform="matrix(.68363 -.74294 2.2804 2.4782 -994.4 -756.93)" gradientUnits="userSpaceOnUse">
+   <stop style="stop-color:#008cbe" offset="0"/>
+   <stop style="stop-color:#b2ffff" offset="1"/>
+  </radialGradient>
+ </defs>
+ <path d="m17.839 10.387c-15.501 16.846-11.745 48.241 8.3867 70.118 20.131 21.878 49.015 25.955 64.516 9.1091 15.501-16.846 11.755-48.242-8.376-70.12-20.131-21.878-49.026-25.954-64.527-9.1078zm14.056 6.9979c12.18-13.237 34.575-10.357 50.025 6.4324 15.449 16.79 18.099 41.128 5.9189 54.364-12.18 13.237-34.581 10.364-50.03-6.4259-15.449-16.79-18.093-41.134-5.913-54.371z" style="fill:url(#a)"/>
+<g style="fill:#ff7f2a;stroke:#d45500;stroke-width:2.2">
+ <rect x="74.375" y="16.369" width="12.978" height="12.978" rx="2.2961" ry="2.2961"/>
+ <rect x="1.4137" y="33.467" width="30.567" height="30.568" rx="5.4082" ry="5.4083"/>
+ <rect x="80.411" y="73.484" width="18.467" height="18.468" rx="3.2672" ry="3.2673"/>
+</g>
+</svg>

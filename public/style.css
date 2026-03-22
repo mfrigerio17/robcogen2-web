@@ -1,0 +1,345 @@
+:root {
+    --color-green: 0,114,64;
+    --color-font: #5A544C;
+    --color-ivory: #F7F3EE;
+    --color-bground: #FCFBF9;
+}
+
+/* To make sure the footer stays at the "right bottom" - unbelievable */
+/* https://css-tricks.com/couple-takes-sticky-footer/ */
+/* https://stackoverflow.com/a/20352949/9908011 */
+
+html, body {
+    height: 100%;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    align-items : center;
+}
+.content {
+    flex : auto;
+}
+
+
+/* Main elements, in the HTML skeleton */
+
+body {
+    background-color: var(--color-bground);
+    color       : var(--color-font);
+    font-family : serif;
+    font-size   : 18px;
+    margin      : 0;
+}
+
+.content {
+    margin-left : auto;
+    margin-right : auto;
+    margin-top : 1lh;
+    margin-bottom : 1lh;
+    width  : 60ch;
+    line-height : 1.4;
+}
+
+footer {
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    min-width : 100%;
+    background-color: #efefef;
+    text-align: center;
+    color: #888;
+    font-size: 70%;
+}
+
+#home {
+    display : inline;
+    position: fixed;
+    top: 1ch;
+    left : 1ch;
+    img {
+        width : 2ch;
+    }
+    a:hover {
+        background-color: unset;
+    }
+}
+
+/* Navigation bars - aka bread crumbs */
+
+#breadcrumbs {
+    background-color: var(--color-bground); /* to hide the text the flows underneath it, when scrolling on <body> */
+    padding : 0 3ch 1lh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items : center;
+}
+
+.navbar {
+    background-color: var(--color-ivory);
+    margin-top : 2px;
+    display: flex;
+    flex-direction: row;
+    justify-content : center;
+}
+.navbar a {
+    padding: 3px 5ch 3px 5ch; /* top right bottom left */
+    white-space: nowrap;
+    color: rgba(var(--color-green), 1.0);
+    text-align:center;
+    &:hover {
+        background-color: rgba(var(--color-green), 0.2);
+    }
+    &.active {
+        background-color: rgba(var(--color-green), 0.4);
+    }
+}
+
+.navbar.tree {
+    font-size : 80%;
+    a {
+        color : gray;
+        &.active {
+            background-color: rgba(from gray r g b / 0.4);
+        }
+    }
+}
+
+
+/* The intermediate indices with big links to pages with content */
+
+tocpage { /* the flex container */
+    display        : flex;
+    flex-direction : column;
+    flex-wrap      : nowrap;
+    margin-top     : 2lh;
+}
+
+tocpage a {
+    color: inherit; /* do not change colors like on visited links */
+}
+
+.pagemenu-item {
+    text-align: left;
+    padding: 4%;
+    margin: 0;
+    display: grid;
+    grid-gap: 10px;
+    transition-property: background;
+    transition-duration: 0.2s;
+}
+
+.pagemenu-item:hover {
+	background-color: rgba(var(--color-green), 0.2);
+}
+
+
+.pmenu-h {
+    color : rgba(var(--color-green), 1.0);
+    font-size: 150%;
+    grid-column-start: 1;
+    grid-row-start   : 1;
+}
+
+.pmenu-text {
+    grid-column-start: 1;
+    grid-row-start   : 2;
+    grid-column-end  : 2;
+    grid-row-end     : 3;
+}
+
+.pmenu-img {
+    grid-column-start: 2;
+    grid-row-start   : 1;
+    grid-column-end  : 3;
+    grid-row-end     : 3;
+    height: 96px;
+}
+
+
+/* Miscellaneous elements */
+
+h1 {
+    margin-top: 1.5lh;
+}
+
+code {
+    font-size: 80%;
+}
+
+pre:has(code) {
+    margin-left: 3em;
+    background: #EEE;
+    padding: 2px;
+}
+
+figure {
+    display: grid;
+    place-items: center;
+}
+figure.sshots img {
+    height:256px
+}
+
+details {
+    margin-left: 4%;
+    border: 1px dashed lightgray
+}
+details summary {
+    color: gray;
+}
+
+sup {
+    line-height : 0; /* prevent footnote markers to affect the vertical spacing between lines in the paragraph */
+}
+
+.footnotes {
+    font-size : 80%;
+    margin-top: 2lh;
+    &:before {
+        content: "";
+        display: block;
+        height: 1px;
+        background: #EFEFEF;
+        /* this is a trick to show a horizontal bar, without having <hr> in the code */
+    }
+}
+
+
+.paper {
+  margin-left : 3ch;
+  margin-bottom : 2lh;
+  display: flex;
+  flex-direction: column;
+  .ref {
+    margin-bottom : 0.5lh;
+    font-size : 90%;
+  }
+  .paperlink {
+    margin-left : 2ch;
+    margin-right: auto; /* so it does not extend beyond the length of the link-text, so not the whole strip gets the background color on hover */
+  }
+  details {
+    margin-left : 2ch;
+    overflow: scroll;
+    summary {
+      color: inherit;
+    }
+    pre {
+      font-size : 75%;
+    }
+  }
+}
+
+.paper.important>.ref {
+    color: darkcyan;
+}
+
+.download-entry {
+    margin-left : 3em;
+}
+.download-entry a {
+    background-color:lightgreen;
+    font-size: 120%
+}
+.download-entry div {
+    font-size : 80%;
+    color: darkgray;
+}
+
+a {
+    text-decoration: none;
+    color: rgba(var(--color-green), 1.0);
+    border-radius : 6px;
+    transition-duration: 0.2s;
+    transition-property: background;
+    &:hover {
+        background: rgba(var(--color-green), 0.2);
+    }
+}
+
+a.web {
+    color: inherit;
+    &:after {
+        content: "↑";
+    }
+    &:hover {
+        background: #fdccda;
+    }
+}
+
+.homepagelink {
+    font-size: 115%;
+    float: right;
+    a {
+        padding : 1ch;  /* a bit larger area that gets the color on :hover */
+        display: block; /* ?? Otherwise the link area is not the same as the nested image area */
+        img {
+            width : 32px;
+        }
+    }
+}
+
+TODO {
+    color: orange;
+    font-size: 80%;
+    font-family: italic;
+    &:before {
+        content: "TODO: ";
+    }
+}
+
+hr {
+	height: 3px;
+	border-radius: 2px;
+	background: #EEE;
+	border: none;
+	margin-top: 2lh;
+}
+
+.codehilite {
+.c { color: #408080; font-style: italic } /* Comment */
+.err { border: 1px solid #FF0000 } /* Error */
+.k { color: #008000; font-weight: bold } /* Keyword */
+.o { color: #666666 } /* Operator */
+.ch { color: #408080; font-style: italic } /* Comment.Hashbang */
+.cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.cp { color: #BC7A00 } /* Comment.Preproc */
+.cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
+.c1 { color: #408080; font-style: italic } /* Comment.Single */
+.cs { color: #408080; font-style: italic } /* Comment.Special */
+.gd { color: #A00000 } /* Generic.Deleted */
+.ge { font-style: italic } /* Generic.Emph */
+.gr { color: #FF0000 } /* Generic.Error */
+.gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.gi { color: #00A000 } /* Generic.Inserted */
+.go { color: #888888 } /* Generic.Output */
+.gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.gs { font-weight: bold } /* Generic.Strong */
+.gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.gt { color: #0044DD } /* Generic.Traceback */
+.kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.kp { color: #008000 } /* Keyword.Pseudo */
+.kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.kt { color: #B00040 } /* Keyword.Type */
+.m { color: #666666 } /* Literal.Number */
+.s { color: #BA2121 } /* Literal.String */
+.na { color: #7D9029 } /* Name.Attribute */
+.nb { color: #008000 } /* Name.Builtin */
+.nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.no { color: #880000 } /* Name.Constant */
+.nd { color: #AA22FF } /* Name.Decorator */
+.ni { color: #999999; font-weight: bold } /* Name.Entity */
+.ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.nf { color: #0000FF } /* Name.Function */
+.nl { color: #A0A000 } /* Name.Label */
+.nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.nt { color: #008000; font-weight: bold } /* Name.Tag */
+.nv { color: #19177C } /* Name.Variable */
+.ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.w { color: #bbbbbb } /* Text.Whitespace */
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset=utf-8>
+<link rel="stylesheet" href="style.css">
+
+<body>
+<div id="home">
+  <a href="index.html" class="crossref"><img src="img/home.svg"></a>
+</div>
+
+  <heading id="breadcrumbs">
+      <div class="navbar leaf">
+        <a href="intro.html" class="inactive crossref">Introduction</a>
+        <a href="docs.html" class="inactive crossref">Documentation</a>
+        <a href="download.html" class="active crossref">Get it</a>
+        <a href="about.html" class="inactive crossref">About</a>
+      </div>
+  </heading>
+
+
+<div class="content">
+<p>Source archive downloads:</p>
+
+<div class="download-entry">
+  <a class="web" href="https://github.com/mfrigerio17/robcogen2/releases/tag/v0.1.0">Version 0.1.0</a>
+  <div class="git-hash">commit hash: <code>5a25c30a5c3e7</code></div>
+  <div class="md5sum">tar.gz archive MD5 checksum: <code>002aa45733c237775aa38b19bb53e0b1</code></div>
+</div>
+
+
+<h1>Git repository</h1>
+
+<p>From <a class="web" href="https://github.com/mfrigerio17/robcogen2">github</a>:</p>
+
+<pre class="cmdline"><code>git clone https://github.com/mfrigerio17/robcogen2.git
+</code></pre>
+
+
+<h1 id="install">Install</h1>
+
+<pre class="cmdline"><code>pip install robcogen2</code></pre>
+
+<p>Alternatively, install the latest development version with
+  <code>pip</code> from your local clone:</p>
+
+<pre class="cmdline"><code>pip install .</code></pre>
+
+
+
+<h2>Requirements</h2>
+<ul>
+  <li>Python >= 3.9</li>
+  <li>Lua >= 5.2</li>
+  <li>The <a class="crossref" href="bonus.html#tplengine">template-text</a>
+    Lua module</li>
+  <li>(Python dependencies are installed by Pip)</li>
+</ul>
+
+<h2>Sample procedure</h2>
+
+<pre class="cmdline"><code>mkdir .venv && python3 -m venv .venv && source .venv/bin/activate
+pip install robcogen2
+luarocks install template-text
+eval `luarocks path`   # because we installed the module user-wide
+rcg --help             # see if it works
+</code></pre>
+
+</div>
+
+<footer>RobCoGen2 website &mdash; &copy; 2026 Marco Frigerio &mdash; last updated on March 2026</footer>
+
+</body>
+</html>

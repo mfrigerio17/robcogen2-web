@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset=utf-8>
+<link rel="stylesheet" href="style.css">
+
+<body>
+<div id="home">
+  <a href="index.html" class="crossref"><img src="img/home.svg"></a>
+</div>
+
+  <heading id="breadcrumbs">
+      <div class="navbar tree">
+        <a href="intro.html" class="inactive crossref">Introduction</a>
+        <a href="docs.html" class="inactive crossref">Documentation</a>
+        <a href="download.html" class="inactive crossref">Get it</a>
+        <a href="about.html" class="active crossref">About</a>
+      </div>
+      <div class="navbar leaf">
+          <a href="authors.html" class="inactive crossref">Authors</a>
+          <a href="publications.html" class="active crossref">Publications</a>
+          <a href="bonus.html" class="inactive crossref">Bonus!</a>
+      </div>
+
+  </heading>
+
+
+<div class="content">
+<h1 id="mypaper">Main article</h1>
+
+<p>If you use our software for your research or your products, we would appreciate
+if you could cite our work. Thank you! </p>
+
+<p>The main publication that describes the Robotics Code Generator and the
+motivation behind it is the following:</p>
+
+<div class="paper important">
+  <div class="ref">
+    Marco Frigerio, Jonas Buchli, Darwin G. Caldwell and Claudio Semini,
+    "<em>RobCoGen: a code generator for efficient kinematics and dynamics of
+      articulated robots, based on Domain Specific Languages</em>", in the Journal of
+    Software Engineering for Robotics (JOSER), Vol 7, No 1, July 2016, pp. 36-54.
+  </div>
+
+  <a href="https://iit-dlslab.github.io/papers/frigerio2016robcogen.pdf" class="paperlink web">PDF</a>
+  <!--a href="https://aisberg.unibg.it/retrieve/e40f7b86-39da-afca-e053-6605fe0aeaf2/98-579-1-PB.pdf">PDF</a-->
+
+  <details class='bibtex'><summary>BibTeX</summary>
+    <pre>
+@Article{frigerio:2016:robcogen,
+author       = {Marco Frigerio and Jonas Buchli and Darwin G. Caldwell and Claudio Semini},
+title        = {{R}ob{C}o{G}en: a code generator for efficient kinematics and dynamics of articulated robots, based on {D}omain {S}pecific {L}anguages},
+journaltitle = {Journal of Software Engineering for Robotics (JOSER)},
+year         = {2016},
+date         = {July},
+volume       = {7},
+number       = {1},
+issue        = {Special Issue on Domain-Specific Languages and Models for Robotic Systems},
+pages        = {36--54}
+}</pre>
+  </details>
+</div>
+
+<h1 id="older-publications">Previous publications</h1>
+
+<div class="paper">
+  <div class="ref">
+    M. Frigerio, J. Buchli and D. G. Caldwell, "Code Generation of Algebraic
+    Quantities for Robot Controllers", IEEE/RSJ International Conference on
+    Intelligent Robots and Systems (IROS), 2012.
+  </div>
+  <a href="https://iit-dlslab.github.io/papers/frigerio12iros.pdf" class="paperlink web">PDF</a>
+  <!--a href="https://ieeexplore.ieee.org/document/6385694">web</a-->
+
+<details class='bibtex'>
+  <summary>BibTeX</summary>
+  <pre>
+@InProceedings{frigerio:2012:iros,
+  Title     = {Code Generation of Algebraic Quantities for Robot Controllers},
+  Author    = {Marco Frigerio and Jonas Buchli and Darwin G. Caldwell},
+  Booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  Year      = {2012}
+}</pre>
+</details>
+</div>
+
+<div class="paper">
+  <div class="ref">
+    M. Frigerio, J. Buchli and D. G. Caldwell, "Model based code generation for
+    kinematics and dynamics computations in robot controllers", extended abstract
+    at the 7th workshop on Software Development and Integration in Robotics
+    (ICRA SDIR VII), St Paul, Minnesota, USA, May 2012.
+  </div>
+  <a href="https://iit-dlslab.github.io/papers/frigerio12sdirvii.pdf" class="paperlink web">PDF</a>
+  <details class='bibtex'>
+    <summary>BibTeX</summary>
+<pre>
+@InProceedings{frigerio:2012:sdirVII,
+  Title      = {Model based code generation for kinematics and dynamics computations in robot controllers},
+  Author     = {Marco Frigerio and Jonas Buchli and Darwin G. Caldwell},
+  Booktitle  = {Seventh workshop on Software Development and Integration in Robotics (ICRA SDIR VII)},
+  Year       = {2012},
+  Month      = {May}
+}</pre>
+  </details>
+</div>
+
+<div class="paper">
+  <div class="ref">
+    M. Frigerio, J. Buchli and D. G. Caldwell, "A Domain Specific Language for
+    kinematic models and fast implementations of robot dynamics algorithms",
+    2nd International Workshop on Domain-Specific Languages and models for
+    ROBotic systems (DSLRob), San Francisco, September 2011.
+  </div>
+  <a href="https://arxiv.org/pdf/1301.7190" class="paperlink web">PDF</a>
+  <details class='bibtex'>
+    <summary>BibTeX</summary>
+    <pre>
+@InProceedings{frigerio:2011:kindsl,
+   Title      = {A Domain Specific Language for kinematic models and fast implementations of robot dynamics algorithms},
+   Author     = {Marco Frigerio and Jonas Buchli and Darwin G. Caldwell},
+   Booktitle  = {2nd International Workshop on Domain-Specific Languages and models for ROBotic systems (DSLRob)},
+   Year       = {2011},
+   Month      = {September}
+}</pre>
+</details>
+</div>
+
+<h2 id="automatic-differentiation">Automatic differentiation</h2>
+
+<div class="paper">
+  <div class="ref">
+    Markus Giftthaler, Michael Neunert, Markus Stäuble, Marco Frigerio, Claudio
+    Semini and Jonas Buchli, "Automatic differentiation of rigid body dynamics
+    for optimal control and estimation", Advanced Robotics, Taylor &amp; Francis,
+    2017, pp 1-13
+  </div>
+  <a href="https://doi.org/10.1080/01691864.2017.1395361" class="paperlink web">Web</a>
+  <details class="bibtex">
+    <summary>BibTeX</summary>
+    <pre>
+@Article{giftthaler:2017:ad,
+  author    = {Markus Giftthaler and Michael Neunert and Markus Stäuble and Marco Frigerio and Claudio Semini and Jonas Buchli},
+  title     = {Automatic differentiation of rigid body dynamics for optimal control and estimation},
+  journal   = {Advanced Robotics},
+  year      = {2017},
+  date      = {2017-11-08},
+  volume    = {0},
+  number    = {0},
+  pages     = {1-13},
+  doi       = {10.1080/01691864.2017.1395361},
+  publisher = {Taylor \& Francis}
+}</pre>
+</details>
+</div>
+
+<div class="paper">
+  <div class="ref">
+    Michael Neunert, Markus Giftthaler, Marco Frigerio, Claudio Semini and Jonas Buchli,
+    "Fast Derivatives of Rigid Body Dynamics for Control, Optimization and Estimation",
+    IEEE international conference on Simulation, Modeling, and Programming for
+    Autonomous Robots (SIMPAR), 2016
+  </div>
+  <a href="https://doi.org/10.1109/SIMPAR.2016.7862380" class="paperlink web">Web</a>
+  <details class="bibtex">
+    <summary>BibTeX</summary>
+    <pre>
+@InProceedings{neunert:2016:derivatives,
+  author    = {Michael Neunert and Markus Giftthaler and Marco Frigerio and Claudio Semini and Jonas Buchli},
+  title     = {Fast Derivatives of Rigid Body Dynamics for Control, Optimization and Estimation},
+  booktitle = {IEEE international conference on Simulation, Modeling, and Programming for Autonomous Robots (SIMPAR)},
+  year      = {2016}
+}</pre>
+</details>
+</div>
+
+<h1 id="related-publications">Related publications</h1>
+
+<div class="paper">
+  <div class="ref">
+    S. M. Neuman, T. Koolen, J. Drean, J. E. Miller and S. Devadas,
+    "Benchmarking and Workload Analysis of Robot Dynamics Algorithms",
+    2019 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS), Macau, China, 2019
+  </div>
+  <a href="https://doi.org/10.1109/IROS40897.2019.8967694" class="paperlink web">Web</a>
+  <details class='bibtex'><summary>BibTeX</summary>
+    <pre>
+@INPROCEEDINGS{Neuman:2019:comparison,
+  author={Neuman, Sabrina M. and Koolen, Twan and Drean, Jules and Miller, Jason E. and Devadas, Srinivas},
+  booktitle={2019 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  title={Benchmarking and Workload Analysis of Robot Dynamics Algorithms},
+  year={2019},
+  volume={},
+  number={},
+  pages={5235-5242},
+  doi={10.1109/IROS40897.2019.8967694}
+} </pre>
+  </details>
+</div>
+<p>
+  This is a paper from a different team benchmarking four robot dynamics libraries,
+  presented at the IROS conference. RobCoGen compares very favourably with the other
+  libraries!
+</p>
+<details>
+  <summary>The case of inverse dynamics</summary>
+  <p>The only case in which RobCoGen does not perform better/equally than/to the
+    other libraries studied in the paper is inverse dynamics for floating base
+    robots. The <strong>authors were quite fair and explain</strong> this fact,
+    but I still feel like a clarification is needed.</p>
+  <p>Essentially, different algorithms were compared: for a floating base robot,
+    robcogen inverse dynamics is really a hybrid dynamics solver, which also
+    computes the acceleration of the base; I think that it does not make much sense
+    to do otherwise.
+    <sup class="fn-ref" id="fnref:fully-actuated-ID"><a class="crossref" href="#fn:fully-actuated-ID">1</a></sup></p>
+  <p>Such a hybrid dynamics solver has a higher computational cost then the regular
+    inverse dynamics, which was used to benchmark the other libraries (do they then
+    always assume a fixed base??). The two algorithms are not very comparable
+    because the hybrid dynamics computes more things.</p>
+  <p>An additional factor affecting performance is a poor implementation of the
+    coordinate transformation for composite inertia, which is used in the hybrid
+    dynamics code. This was a bit silly, as I was already using a better
+    implementation of the same operation in the code for the inertia matrix; I
+    just forgot to update the hybrid dynamics... Note that this detail is also
+    mentioned in the paper.</p>
+</details>
+
+<p>Older and less thorough performance comparisons involving RobCoGen are included
+in the main paper (see the top of this page).</p>
+
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:fully-actuated-ID">
+      <p>In fact, RobCoGen-erated C++ code also gives the option to calculate floating
+	base inverse dynamics under the assumption of a "fully-actuated" base, i.e., as
+	if any arbitrary wrench could be exerted on the floating base. In this case,
+	the base acceleration is a <em>desired</em> value, the same as for the joints.
+	&#160;<a class="fn-backref crossref" href="#fnref:fully-actuated-ID" title="Jump back to footnote origin">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+</div>
+
+<footer>RobCoGen2 website &mdash; &copy; 2026 Marco Frigerio &mdash; last updated on March 2026</footer>
+
+</body>
+</html>
